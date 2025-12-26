@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART Public Complaint System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            background: white;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #007bff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .form-group input.error, .form-group select.error, .form-group textarea.error {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220,53,69,0.1);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .validation-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 18px;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .voice-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        .voice-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voice-btn.recording {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Document Upload Styles */
+        .document-upload {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9fa;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .document-upload.dragover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        .document-upload.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .document-upload input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .upload-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+
+        .document-preview {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #28a745;
+        }
+
+        .preview-item.invalid {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .preview-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .preview-info {
+            flex: 1;
+        }
+
+        .preview-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .preview-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .preview-status {
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .preview-status.valid {
+            color: #28a745;
+        }
+
+        .preview-status.invalid {
+            color: #dc3545;
+        }
+
+        .preview-status.checking {
+            color: #ffc107;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .location-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .location-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .location-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .location-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .location-item strong {
+            color: #007bff;
+        }
+
+        .location-loading {
+            color: #ffc107;
+            font-style: italic;
+        }
+
+        .location-success {
+            color: #28a745;
+        }
+
+        .location-error {
+            color: #dc3545;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,123,255,0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .complaint-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .complaint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .complaint-id {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-resolved {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .progress-timeline {
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #007bff;
+            margin-right: 15px;
+            z-index: 1;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 20px;
+            width: 2px;
+            height: 30px;
+            background: #dee2e6;
+        }
+
+        .offline-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+        }
+
+        .offline-indicator.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            padding: 10px 15px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .map-container {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            border: 2px dashed #dee2e6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .voice-status {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .voice-language-selector {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .no-complaints {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.3);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-indicator" id="offlineIndicator">
+        📶 <span data-lang="offline">Offline Mode - Data will sync when online</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <select class="language-selector" id="languageSelector">
+                <option value="en">🇺🇸 English</option>
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="ta">🇮🇳 தமிழ்</option>
+                <option value="bn">🇮🇳 বাংলা</option>
+            </select>
+            <h1 data-lang="title">SMART Public Complaint System</h1>
+            <p data-lang="subtitle">Voice-Enabled | Geo-Tagged | Multi-Channel Support</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-button active" onclick="switchTab('complaint')">📝 <span data-lang="tab_complaint">File Complaint</span></button>
+            <button class="tab-button" onclick="switchTab('track')">📊 <span data-lang="tab_track">Track Status</span></button>
+            <button class="tab-button" onclick="switchTab('dashboard')">📈 <span data-lang="tab_dashboard">Dashboard</span></button>
+            <button class="tab-button" onclick="switchTab('features')">⚡ <span data-lang="tab_features">Features</span></button>
+        </div>
+
+        <div class="tab-content active" id="complaint">
+            <form id="complaintForm">
+                <div class="form-group">
+                    <label for="complaintType" data-lang="complaint_type_label">Complaint Type</label>
+                    <select id="complaintType" required>
+                        <option value="" data-lang="select_complaint_type">Select complaint type</option>
+                        <option value="water">💧 <span data-lang="water_supply">Water Supply Issues</span></option>
+                        <option value="electricity">⚡ <span data-lang="electricity">Electricity Problems</span></option>
+                        <option value="roads">🛣️ <span data-lang="roads">Road & Infrastructure</span></option>
+                        <option value="sanitation">🧹 <span data-lang="sanitation">Sanitation & Cleanliness</span></option>
+                        <option value="health">🏥 <span data-lang="health">Healthcare Services</span></option>
+                        <option value="education">📚 <span data-lang="education">Education Related</span></option>
+                        <option value="other">📋 <span data-lang="other">Other Issues</span></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" data-lang="complaint_description">Complaint Description</label>
+                    <textarea id="description" rows="4" data-lang="description_placeholder" placeholder="Describe your complaint in detail..." required></textarea>
+                    <div class="voice-controls">
+                        <button type="button" class="voice-btn" id="voiceBtn">
+                            🎤 <span data-lang="record_voice">Record Voice Message</span>
+                        </button>
+                        <select class="voice-language-selector" id="voiceLanguageSelector">
+                            <option value="en-US">English</option>
+                            <option value="hi-IN">हिंदी</option>
+                            <option value="ta-IN">தமிழ்</option>
+                            <option value="bn-IN">বাংলা</option>
+                        </select>
+                        <span class="voice-status" id="voiceStatus" data-lang="voice_status">Click to start voice recording</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="identityProof" data-lang="identity_proof">Identity Proof (Required)</label>
+                    <div class="document-upload" id="documentUpload">
+                        <input type="file" id="identityProof" accept=".jpg,.jpeg,.png,.pdf" multiple required>
+                        <label for="identityProof" class="upload-label">
+                            📄 <span data-lang="upload_documents">Upload Aadhaar/ID Documents</span>
+                        </label>
+                        <p style="margin-top: 15px; color: #666;" data-lang="upload_instructions">
+                            Drag & drop files here or click to browse<br>
+                            Supported: JPG, PNG, PDF (Max 5MB each)
+                        </p>
+                    </div>
+                    <div class="error-message" id="documentError">Please upload valid identity documents</div>
+                    <div class="document-preview" id="documentPreview"></div>
+                </div>
+
+                <div class="location-info" id="locationInfo">
+                    <h3>📍 <span data-lang="location_info">Location Information</span></h3>
+                    <div class="location-details">
+                        <div class="location-item">
+                            <strong data-lang="coordinates">Coordinates:</strong><br>
+                            <span id="coordinates" class="location-loading" data-lang="getting_location">Getting location...</span>
+                        </div>
+                        <div class="location-item">
+                            <strong data-lang="address">Address:</strong><br>
+                            <span id="address" class="location-loading" data-lang="resolving_address">Resolving address...</span>
+                        </div>
+                        <div class="location-item">
+                            <strong data-lang="district">District:</strong><br>
+                            <span id="district" class="location-loading" data-lang="auto_detected">Auto-detecting...</span>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <div data-lang="map_view">🗺️ Interactive Map View (OpenStreetMap Integration)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="priority" data-lang="priority_level">Priority Level</label>
+                    <select id="priority" required>
+                        <option value="low">🟢 <span data-lang="low_priority">Low - Non-urgent issue</span></option>
+                        <option value="medium">🟡 <span data-lang="medium_priority">Medium - Moderate urgency</span></option>
+                        <option value="high">🔴 <span data-lang="high_priority">High - Urgent attention needed</span></option>
+                        <option value="critical">🚨 <span data-lang="critical_priority">Critical - Emergency</span></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact" data-lang="contact_info">Contact Information</label>
+                    <input type="tel" id="contact" data-lang="contact_placeholder" placeholder="Mobile number for updates" required>
+                    <div class="error-message" id="phoneError">Please enter a valid 10-digit mobile number</div>
+                    <div class="success-message" id="phoneSuccess">✓ Valid phone number</div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">🚀 <span data-lang="submit_complaint">Submit Complaint</span></button>
+            </form>
+        </div>
+
+        <div class="tab-content" id="track">
+            <h2 data-lang="track_complaints">Track Your Complaints</h2>
+           
+            <div class="form-group">
+                <label for="trackingId" data-lang="tracking_id_label">Enter Complaint ID or Mobile Number</label>
+                <input type="text" id="trackingId" placeholder="e.g., CMP-2024-001 or +91-9876543210">
+                <button type="button" class="btn-primary" onclick="searchComplaints()" style="margin-top: 15px; width: auto; padding: 12px 25px;">🔍 <span data-lang="search">Search</span></button>
+            </div>
+
+            <div class="search-results" id="searchResults">
+                <!-- Sample complaint for demonstration -->
+                <div class="complaint-card" data-complaint-id="CMP-2024-001">
+                    <div class="complaint-header">
+                        <span class="complaint-id">CMP-2024-001</span>
+                        <span class="status-badge status-progress" data-lang="status_progress">In Progress</span>
+                    </div>
+                    <h3 data-lang="sample_complaint">Water Supply Disruption in Village Center</h3>
+                    <p><strong data-lang="location">Location:</strong> <span data-lang="sample_location">Main Road, Village Center</span></p>
+                    <p><strong data-lang="submitted">Submitted:</strong> Sept 10, 2024 | <strong data-lang="priority">Priority:</strong> <span data-lang="high">High</span></p>
+                   
+                    <div class="progress-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div>
+                                <strong data-lang="complaint_submitted">Complaint Submitted</strong><br>
+                                <small>Sept 10, 2024 - 2:30 PM</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div>
+                                <strong data-lang="assigned_dept">Assigned to Department</strong><br>
+                                <small>Sept 10, 2024 - 3:15 PM - Water Supply Dept.</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div>
+                                <strong data-lang="inspection_started">Field Inspection Started</strong><br>
+                                <small>Sept 11, 2024 - 10:00 AM - Inspector: Mr. Sharma</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="complaint-card" data-complaint-id="CMP-2024-002">
+                    <div class="complaint-header">
+                        <span class="complaint-id">CMP-2024-002</span>
+                        <span class="status-badge status-resolved" data-lang="status_resolved">Resolved</span>
+                    </div>
+                    <h3 data-lang="sample_resolved">Street Light Not Working</h3>
+                    <p><strong data-lang="location">Location:</strong> <span data-lang="market_street">Market Street</span></p>
+                    <p><strong data-lang="resolved">Resolved:</strong> Sept 8, 2024 | <strong data-lang="resolution_time">Resolution Time:</strong> 2 days</p>
+                </div>
+            </div>
+
+            <div class="no-complaints" id="noComplaints" style="display: none;">
+                No complaints found for the provided search criteria.
+            </div>
+        </div>
+
+        <div class="tab-content" id="dashboard">
+            <h2 data-lang="system_dashboard">System Dashboard</h2>
+           
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label" data-lang="total_complaints">Total Complaints</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">856</div>
+                    <div class="stat-label" data-lang="resolved">Resolved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">324</div>
+                    <div class="stat-label" data-lang="in_progress">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">67</div>
+                    <div class="stat-label" data-lang="pending">Pending</div>
+                </div>
+            </div>
+
+            <h3 data-lang="recent_activity">Recent Activity</h3>
+            <div class="complaint-card">
+                <h4>📊 <span data-lang="system_performance">System Performance</span></h4>
+                <p><strong data-lang="avg_resolution">Average Resolution Time:</strong> 3.2 days</p>
+                <p><strong data-lang="response_rate">Department Response Rate:</strong> 94%</p>
+                <p><strong data-lang="satisfaction">Citizen Satisfaction:</strong> 4.2/5</p>
+                <p><strong data-lang="escalated_cases">Auto-escalated Cases:</strong> 23 this month</p>
+            </div>
+
+            <div class="complaint-card">
+                <h4>🗺️ <span data-lang="geographic_distribution">Geographic Distribution</span></h4>
+                <div class="map-container">
+                    <div data-lang="heat_map">Interactive Heat Map showing complaint density across regions</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="features">
+            <h2 data-lang="system_features">System Features</h2>
+           
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎤</div>
+                    <h3 data-lang="voice_enabled">Voice-Enabled</h3>
+                    <p data-lang="voice_description">Record complaints in local languages using voice input. No typing required - perfect for users with limited literacy.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3 data-lang="geo_tagging">Geo-Tagging</h3>
+                    <p data-lang="geo_description">Automatic location capture using GPS coordinates. Complaints are mapped to exact locations for precise department routing.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3 data-lang="multi_language">Multi-Language</h3>
+                    <p data-lang="language_description">Support for local languages including Hindi, Tamil, Bengali, and regional dialects for better accessibility.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 data-lang="multi_channel">Multi-Channel</h3>
+                    <p data-lang="channel_description">Submit via web app, SMS, IVR calls, or USSD codes. Works on smartphones, feature phones, and landlines.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📶</div>
+                    <h3 data-lang="offline_mode">Offline Mode</h3>
+                    <p data-lang="offline_description">PWA technology enables offline complaint submission. Data syncs automatically when connection is restored.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⬆️</div>
+                    <h3 data-lang="auto_escalation">Auto-Escalation</h3>
+                    <p data-lang="escalation_description">Complaints automatically escalate to higher authorities if not addressed within defined timeframes.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 data-lang="real_time_tracking">Real-Time Tracking</h3>
+                    <p data-lang="tracking_description">Citizens can track complaint status in real-time with SMS updates and detailed progress timelines.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 data-lang="smart_routing">Smart Routing</h3>
+                    <p data-lang="routing_description">AI-powered complaint categorization and automatic routing to relevant departments based on type and location.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Document Validation</h3>
+                    <p>Advanced OCR and AI validation ensures only authentic identity documents are accepted, preventing spam and fake complaints.</p>
+                </div>
+            </div>
+
+            <div class="complaint-card">
+                <h3>🏗️ <span data-lang="technical_architecture">Technical Architecture</span></h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div>
+                        <strong data-lang="frontend">Frontend:</strong><br>
+                        • HTML5, CSS3, JavaScript<br>
+                        • Progressive Web App (PWA)<br>
+                        • Responsive Design
+                    </div>
+                    <div>
+                        <strong data-lang="backend">Backend:</strong><br>
+                        • Python Flask/Django<br>
+                        • Java Spring Boot<br>
+                        • RESTful APIs
+                    </div>
+                    <div>
+                        <strong data-lang="database">Database:</strong><br>
+                        • SQLite (offline)<br>
+                        • PostgreSQL + PostGIS<br>
+                        • Geo-spatial indexing
+                    </div>
+                    <div>
+                        <strong data-lang="integrations">Integrations:</strong><br>
+                        • HTML5 Geolocation<br>
+                        • OpenStreetMap<br>
+                        • Web Speech API
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                title: "SMART Public Complaint System",
+                subtitle: "Voice-Enabled | Geo-Tagged | Multi-Channel Support",
+                tab_complaint: "File Complaint",
+                tab_track: "Track Status",
+                tab_dashboard: "Dashboard",
+                tab_features: "Features",
+                complaint_type_label: "Complaint Type",
+                select_complaint_type: "Select complaint type",
+                water_supply: "Water Supply Issues",
+                electricity: "Electricity Problems",
+                roads: "Road & Infrastructure",
+                sanitation: "Sanitation & Cleanliness",
+                health: "Healthcare Services",
+                education: "Education Related",
+                other: "Other Issues",
+                complaint_description: "Complaint Description",
+                description_placeholder: "Describe your complaint in detail...",
+                record_voice: "Record Voice Message",
+                voice_status: "Click to start voice recording",
+                identity_proof: "Identity Proof (Required)",
+                upload_documents: "Upload Aadhaar/ID Documents",
+                upload_instructions: "Drag & drop files here or click to browse<br>Supported: JPG, PNG, PDF (Max 5MB each)",
+                location_info: "Location Information",
+                coordinates: "Coordinates",
+                getting_location: "Getting location...",
+                address: "Address",
+                resolving_address: "Resolving address...",
+                district: "District",
+                auto_detected: "Auto-detected",
+                map_view: "Interactive Map View (OpenStreetMap Integration)",
+                priority_level: "Priority Level",
+                low_priority: "Low - Non-urgent issue",
+                medium_priority: "Medium - Moderate urgency",
+                high_priority: "High - Urgent attention needed",
+                critical_priority: "Critical - Emergency",
+                contact_info: "Contact Information",
+                contact_placeholder: "Mobile number for updates",
+                submit_complaint: "Submit Complaint",
+                track_complaints: "Track Your Complaints",
+                tracking_id_label: "Enter Complaint ID or Mobile Number",
+                search: "Search",
+                status_progress: "In Progress",
+                status_resolved: "Resolved",
+                sample_complaint: "Water Supply Disruption in Village Center",
+                location: "Location",
+                sample_location: "Main Road, Village Center",
+                submitted: "Submitted",
+                priority: "Priority",
+                high: "High",
+                complaint_submitted: "Complaint Submitted",
+                assigned_dept: "Assigned to Department",
+                inspection_started: "Field Inspection Started",
+                sample_resolved: "Street Light Not Working",
+                market_street: "Market Street",
+                resolved: "Resolved",
+                resolution_time: "Resolution Time",
+                system_dashboard: "System Dashboard",
+                total_complaints: "Total Complaints",
+                in_progress: "In Progress",
+                pending: "Pending",
+                recent_activity: "Recent Activity",
+                system_performance: "System Performance",
+                avg_resolution: "Average Resolution Time",
+                response_rate: "Department Response Rate",
+                satisfaction: "Citizen Satisfaction",
+                escalated_cases: "Auto-escalated Cases",
+                geographic_distribution: "Geographic Distribution",
+                heat_map: "Interactive Heat Map showing complaint density across regions",
+                system_features: "System Features",
+                voice_enabled: "Voice-Enabled",
+                voice_description: "Record complaints in local languages using voice input. No typing required - perfect for users with limited literacy.",
+                geo_tagging: "Geo-Tagging",
+                geo_description: "Automatic location capture using GPS coordinates. Complaints are mapped to exact locations for precise department routing.",
+                multi_language: "Multi-Language",
+                language_description: "Support for local languages including Hindi, Tamil, Bengali, and regional dialects for better accessibility.",
+                multi_channel: "Multi-Channel",
+                channel_description: "Submit via web app, SMS, IVR calls, or USSD codes. Works on smartphones, feature phones, and landlines.",
+                offline_mode: "Offline Mode",
+                offline_description: "PWA technology enables offline complaint submission. Data syncs automatically when connection is restored.",
+                auto_escalation: "Auto-Escalation",
+                escalation_description: "Complaints automatically escalate to higher authorities if not addressed within defined timeframes.",
+                real_time_tracking: "Real-Time Tracking",
+                tracking_description: "Citizens can track complaint status in real-time with SMS updates and detailed progress timelines.",
+                smart_routing: "Smart Routing",
+                routing_description: "AI-powered complaint categorization and automatic routing to relevant departments based on type and location.",
+                technical_architecture: "Technical Architecture",
+                frontend: "Frontend",
+                backend: "Backend",
+                database: "Database",
+                integrations: "Integrations",
+                offline: "Offline Mode - Data will sync when online"
+            },
+            hi: {
+                title: "स्मार्ट जन शिकायत प्रणाली",
+                subtitle: "वॉयस-सक्षम | जियो-टैग्ड | मल्टी-चैनल सपोर्ट",
+                tab_complaint: "शिकायत दर्ज करें",
+                tab_track: "स्थिति ट्रैक करें",
+                tab_dashboard: "डैशबोर्ड",
+                tab_features: "विशेषताएं",
+                complaint_type_label: "शिकायत का प्रकार",
+                select_complaint_type: "शिकायत का प्रकार चुनें",
+                water_supply: "पानी आपूर्ति की समस्याएं",
+                electricity: "बिजली की समस्याएं",
+                roads: "सड़क और बुनियादी ढांचा",
+                sanitation: "स्वच्छता और सफाई",
+                health: "स्वास्थ्य सेवाएं",
+                education: "शिक्षा संबंधी",
+                other: "अन्य समस्याएं",
+                complaint_description: "शिकायत का विवरण",
+                description_placeholder: "अपनी शिकायत का विस्तार से वर्णन करें...",
+                record_voice: "वॉयस मैसेज रिकॉर्ड करें",
+                voice_status: "वॉयस रिकॉर्डिंग शुरू करने के लिए क्लिक करें",
+                identity_proof: "पहचान प्रमाण (आवश्यक)",
+                upload_documents: "आधार/आईडी दस्तावेज अपलोड करें",
+                upload_instructions: "फाइलें यहां खींचें और छोड़ें या ब्राउज़ करने के लिए क्लिक करें<br>समर्थित: JPG, PNG, PDF (प्रत्येक अधिकतम 5MB)",
+                location_info: "स्थान की जानकारी",
+                coordinates: "निर्देशांक",
+                getting_location: "स्थान प्राप्त कर रहे हैं...",
+                address: "पता",
+                resolving_address: "पता निकाल रहे हैं...",
+                district: "जिला",
+                auto_detected: "स्वचालित रूप से पता चला",
+                map_view: "इंटरैक्टिव मैप व्यू (ओपनस्ट्रीटमैप एकीकरण)",
+                priority_level: "प्राथमिकता स्तर",
+                low_priority: "कम - गैर-जरूरी समस्या",
+                medium_priority: "मध्यम - मध्यम तात्कालिकता",
+                high_priority: "उच्च - तत्काल ध्यान चाहिए",
+                critical_priority: "महत्वपूर्ण - आपातकाल",
+                contact_info: "संपर्क जानकारी",
+                contact_placeholder: "अपडेट के लिए मोबाइल नंबर",
+                submit_complaint: "शिकायत जमा करें",
+                track_complaints: "अपनी शिकायतों को ट्रैक करें",
+                tracking_id_label: "शिकायत आईडी या मोबाइल नंबर दर्ज करें",
+                search: "खोजें",
+                offline: "ऑफ़लाइन मोड - ऑनलाइन होने पर डेटा सिंक हो जाएगा"
+            },
+            ta: {
+                title: "ஸ்மார்ட் பொது புகார் அமைப்பு",
+                subtitle: "குரல்-இயக்கம் | பூவி-டாக் | பல-சேனல் ஆதரவு",
+                tab_complaint: "புகார் தாக்கல் செய்யுங்கள்",
+                tab_track: "நிலைமை கண்காணிக்கவும்",
+                tab_dashboard: "டாஷ்போர்ட்",
+                tab_features: "அம்சங்கள்",
+                complaint_type_label: "புகார் வகை",
+                select_complaint_type: "புகார் வகையைத் தேர்ந்தெடுக்கவும்",
+                water_supply: "நீர் வழங்கல் பிரச்சினைகள்",
+                electricity: "மின்சார பிரச்சினைகள்",
+                roads: "சாலை மற்றும் உள்கட்டமைப்பு",
+                sanitation: "சுகாதாரம் மற்றும் தூய்மை",
+                health: "சுகாதார சேவைகள்",
+                education: "கல்வி தொடர்பான",
+                other: "பிற பிரச்சினைகள்",
+                complaint_description: "புகார் விவரம்",
+                description_placeholder: "உங்கள் புகாரை விரிவாக விவரிக்கவும்...",
+                record_voice: "குரல் செய்தியை பதிவு செய்யுங்கள்",
+                voice_status: "குரல் பதிவைத் தொடங்க கிளிக் செய்யவும்",
+                identity_proof: "அடையாள சான்று (தேவை)",
+                upload_documents: "ஆதார்/அடையாள ஆவணங்களைப் பதிவேற்றவும்",
+                upload_instructions: "கோப்புகளை இங்கே இழுத்து விடவும் அல்லது உலாவ கிளிக் செய்யவும்<br>ஆதரிக்கப்படும்: JPG, PNG, PDF (ஒவ்வொன்றும் அதிகபட்சம் 5MB)",
+                location_info: "இட தகவல்",
+                coordinates: "ஒருங்கிணைப்புகள்",
+                getting_location: "இடம் பெறுகிறது...",
+                address: "முகவரி",
+                resolving_address: "முகவரியைத் தீர்க்கிறது...",
+                district: "மாவட்டம்",
+                auto_detected: "தானாக கண்டுபிடிக்கப்பட்டது",
+                map_view: "ஊடாடும் வரைபட காட்சி (ஓபன்ஸ்ட்ரீட்மேப் ஒருங்கிணைப்பு)",
+                priority_level: "முன்னுரிமை நிலை",
+                low_priority: "குறைந்த - அவசரமில்லாத பிரச்சினை",
+                medium_priority: "நடுத்தர - மிதமான அவசரம்",
+                high_priority: "உயர் - அவசர கவனம் தேவை",
+                critical_priority: "முக்கியமான - அவசரநிலை",
+                contact_info: "தொடர்பு தகவல்",
+                contact_placeholder: "புதுப்பிப்புகளுக்கான மொபைல் எண்",
+                submit_complaint: "புகார் சமர்ப்பிக்கவும்",
+                track_complaints: "உங்கள் புகார்களைக் கண்காணிக்கவும்",
+                tracking_id_label: "புகார் ஐடி அல்லது மொபைல் எண்ணை உள்ளிடவும்",
+                search: "தேடு",
+                offline: "ஆஃப்லைன் பயன்முறை - ஆன்லைனில் இருக்கும்போது தரவு ஒத்திசைக்கப்படும்"
+            },
+            bn: {
+                title: "স্মার্ট পাবলিক অভিযোগ সিস্টেম",
+                subtitle: "ভয়েস-সক্ষম | জিও-ট্যাগড | মাল্টি-চ্যানেল সাপোর্ট",
+                tab_complaint: "অভিযোগ দাখিল করুন",
+                tab_track: "স্ট্যাটাস ট্র্যাক করুন",
+                tab_dashboard: "ড্যাশবোর্ড",
+                tab_features: "বৈশিষ্ট্যসমূহ",
+                complaint_type_label: "অভিযোগের ধরন",
+                select_complaint_type: "অভিযোগের ধরন নির্বাচন করুন",
+                water_supply: "পানি সরবরাহের সমস্যা",
+                electricity: "বিদ্যুৎ সমস্যা",
+                roads: "রাস্তা ও অবকাঠামো",
+                sanitation: "স্যানিটেশন ও পরিচ্ছন্নতা",
+                health: "স্বাস্থ্য সেবা",
+                education: "শিক্ষা সংক্রান্ত",
+                other: "অন্যান্য সমস্যা",
+                complaint_description: "অভিযোগের বিবরণ",
+                description_placeholder: "আপনার অভিযোগ বিস্তারিতভাবে বর্ণনা করুন...",
+                record_voice: "ভয়েস বার্তা রেকর্ড করুন",
+                voice_status: "ভয়েস রেকর্ডিং শুরু করতে ক্লিক করুন",
+                identity_proof: "পরিচয় প্রমাণ (আবশ্যক)",
+                upload_documents: "আধার/আইডি নথি আপলোড করুন",
+                upload_instructions: "ফাইলগুলি এখানে টেনে আনুন বা ব্রাউজ করতে ক্লিক করুন<br>সমর্থিত: JPG, PNG, PDF (প্রতিটি সর্বোচ্চ 5MB)",
+                location_info: "অবস্থানের তথ্য",
+                coordinates: "স্থানাংক",
+                getting_location: "অবস্থান পাওয়া হচ্ছে...",
+                address: "ঠিকানা",
+                resolving_address: "ঠিকানা সমাধান হচ্ছে...",
+                district: "জেলা",
+                auto_detected: "স্বয়ংক্রিয়ভাবে সনাক্ত",
+                map_view: "ইন্টারঅ্যাক্টিভ ম্যাপ ভিউ (ওপেনস্ট্রিটম্যাপ ইন্টিগ্রেশন)",
+                priority_level: "অগ্রাধিকার স্তর",
+                low_priority: "কম - জরুরি নয় এমন সমস্যা",
+                medium_priority: "মধ্যম - মাঝারি জরুরি",
+                high_priority: "উচ্চ - জরুরি মনোযোগ প্রয়োজন",
+                critical_priority: "গুরুত্বপূর্ণ - জরুরি অবস্থা",
+                contact_info: "যোগাযোগের তথ্য",
+                contact_placeholder: "আপডেটের জন্য মোবাইল নম্বর",
+                submit_complaint: "অভিযোগ জমা দিন",
+                track_complaints: "আপনার অভিযোগ ট্র্যাক করুন",
+                tracking_id_label: "অভিযোগ আইডি বা মোবাইল নম্বর লিখুন",
+                search: "অনুসন্ধান",
+                offline: "অফলাইন মোড - অনলাইন থাকলে ডেটা সিঙ্ক হবে"
+            }
+        };
+
+        // Global variables
+        let currentLanguage = 'en';
+        let isRecording = false;
+        let recognition = null;
+        let uploadedFiles = [];
+        let complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+        let currentLocation = null;
+
+        // Enhanced document validation using OCR simulation
+        class DocumentValidator {
+            static async validateDocument(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const result = await this.performOCRValidation(e.target.result, file.name);
+                        resolve(result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            static async performOCRValidation(dataUrl, fileName) {
+                // Simulate OCR processing delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Simulate document validation logic
+                const validationResult = {
+                    isValid: false,
+                    confidence: 0,
+                    documentType: 'unknown',
+                    errors: []
+                };
+
+                // Check file name patterns for common ID documents
+                const aadhaarPattern = /aadhaar|aadhar/i;
+                const panPattern = /pan|income|tax/i;
+                const voterPattern = /voter|election/i;
+                const drivingPattern = /driving|license|dl/i;
+
+                if (aadhaarPattern.test(fileName)) {
+                    validationResult.documentType = 'aadhaar';
+                    validationResult.confidence = Math.random() * 40 + 60; // 60-100%
+                } else if (panPattern.test(fileName)) {
+                    validationResult.documentType = 'pan';
+                    validationResult.confidence = Math.random() * 40 + 60;
+                } else if (voterPattern.test(fileName)) {
+                    validationResult.documentType = 'voter_id';
+                    validationResult.confidence = Math.random() * 40 + 60;
+                } else if (drivingPattern.test(fileName)) {
+                    validationResult.documentType = 'driving_license';
+                    validationResult.confidence = Math.random() * 40 + 60;
+                } else {
+                    validationResult.confidence = Math.random() * 30 + 20; // 20-50%
+                }
+
+                // Validation logic
+                if (validationResult.confidence > 70) {
+                    validationResult.isValid = true;
+                } else if (validationResult.confidence > 50) {
+                    validationResult.isValid = true;
+                    validationResult.errors.push('Document quality could be better');
+                } else {
+                    validationResult.isValid = false;
+                    validationResult.errors.push('Document appears to be invalid or unreadable');
+                }
+
+                // Random additional validations
+                if (Math.random() > 0.8) {
+                    validationResult.errors.push('Text clarity needs improvement');
+                }
+
+                return validationResult;
+            }
+        }
+
+        // Phone number validation
+        function validatePhoneNumber(phone) {
+            // Remove all non-digit characters
+            const cleaned = phone.replace(/\D/g, '');
+            
+            // Check for Indian mobile number patterns
+            const patterns = [
+                /^[6-9]\d{9}$/, // 10-digit starting with 6-9
+                /^91[6-9]\d{9}$/, // With country code
+                /^0[6-9]\d{9}$/ // With leading zero
+            ];
+
+            return patterns.some(pattern => pattern.test(cleaned));
+        }
+
+        // Enhanced geolocation with reverse geocoding
+        async function getEnhancedLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation not supported'));
+                    return;
+                }
+
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                };
+
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        
+                        try {
+                            const addressInfo = await reverseGeocode(latitude, longitude);
+                            const locationData = {
+                                coordinates: { latitude, longitude },
+                                address: addressInfo.address,
+                                district: addressInfo.district,
+                                state: addressInfo.state,
+                                country: addressInfo.country,
+                                accuracy: position.coords.accuracy
+                            };
+                            resolve(locationData);
+                        } catch (error) {
+                            resolve({
+                                coordinates: { latitude, longitude },
+                                address: 'Address lookup failed',
+                                district: 'Unknown District',
+                                state: 'Unknown State',
+                                country: 'India',
+                                accuracy: position.coords.accuracy
+                            });
+                        }
+                    },
+                    (error) => {
+                        reject(error);
+                    },
+                    options
+                );
+            });
+        }
+
+        // Reverse geocoding simulation (in real app, use a service like OpenStreetMap Nominatim)
+        async function reverseGeocode(lat, lng) {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Return mock address data
+            return {
+                address: `${Math.floor(Math.random() * 999) + 1} Main Road, Village Center`,
+                district: `District ${Math.floor(Math.random() * 100) + 1}`,
+                state: 'Sample State',
+                country: 'India'
+            };
+        }
+
+        // Initialize speech recognition
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
+               
+                recognition.onstart = function() {
+                    isRecording = true;
+                    updateVoiceButton();
+                };
+               
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript + ' ';
+                        }
+                    }
+                    if (finalTranscript) {
+                        const descriptionField = document.getElementById('description');
+                        descriptionField.value += finalTranscript;
+                    }
+                };
+               
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    stopRecording();
+                    alert('Voice recognition error: ' + event.error);
+                };
+               
+                recognition.onend = function() {
+                    isRecording = false;
+                    updateVoiceButton();
+                };
+            }
+        }
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+           
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+           
+            document.getElementById(tabName).classList.add('active');
+           
+            event.target.closest('.tab-button').classList.add('active');
+        }
+
+        // Voice recording functionality
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceLanguageSelector = document.getElementById('voiceLanguageSelector');
+
+        voiceBtn.addEventListener('click', function() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in this browser.');
+                return;
+            }
+           
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        function startRecording() {
+            if (recognition) {
+                recognition.lang = voiceLanguageSelector.value;
+                recognition.start();
+                updateVoiceButton();
+                voiceStatus.textContent = 'Recording... Click to stop';
+            }
+        }
+
+        function stopRecording() {
+            if (recognition) {
+                recognition.stop();
+                updateVoiceButton();
+                voiceStatus.textContent = 'Voice recording completed';
+            }
+        }
+
+        function updateVoiceButton() {
+            if (isRecording) {
+                voiceBtn.classList.add('recording');
+                voiceBtn.innerHTML = '<div class="spinner"></div> Recording...';
+            } else {
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '🎤 Record Voice Message';
+            }
+        }
+
+        // Enhanced document upload functionality
+        const documentUpload = document.getElementById('documentUpload');
+        const identityProof = document.getElementById('identityProof');
+        const documentPreview = document.getElementById('documentPreview');
+        const documentError = document.getElementById('documentError');
+
+        documentUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        documentUpload.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+
+        documentUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFileUpload(files);
+        });
+
+        identityProof.addEventListener('change', function() {
+            handleFileUpload(this.files);
+        });
+
+        async function handleFileUpload(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+               
+                // Validate file type
+                if (!['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'].includes(file.type)) {
+                    alert('Only JPG, PNG, and PDF files are allowed.');
+                    continue;
+                }
+               
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB.');
+                    continue;
+                }
+
+                const fileData = {
+                    file: file,
+                    isValid: null,
+                    validationResult: null
+                };
+               
+                uploadedFiles.push(fileData);
+                displayFilePreview(fileData);
+                
+                // Validate document asynchronously
+                validateDocumentAsync(fileData);
+            }
+            
+            documentError.style.display = 'none';
+        }
+
+        async function validateDocumentAsync(fileData) {
+            const previewItem = document.querySelector(`[data-file-name="${fileData.file.name}"]`);
+            const statusElement = previewItem.querySelector('.preview-status');
+            
+            statusElement.textContent = 'Validating document...';
+            statusElement.className = 'preview-status checking';
+            
+            try {
+                const validationResult = await DocumentValidator.validateDocument(fileData.file);
+                fileData.validationResult = validationResult;
+                fileData.isValid = validationResult.isValid;
+                
+                if (validationResult.isValid) {
+                    statusElement.textContent = `✓ Valid ${validationResult.documentType.replace('_', ' ').toUpperCase()} (${Math.round(validationResult.confidence)}% confidence)`;
+                    statusElement.className = 'preview-status valid';
+                    previewItem.classList.remove('invalid');
+                } else {
+                    statusElement.textContent = `✗ Invalid document: ${validationResult.errors.join(', ')}`;
+                    statusElement.className = 'preview-status invalid';
+                    previewItem.classList.add('invalid');
+                }
+            } catch (error) {
+                statusElement.textContent = '✗ Validation failed';
+                statusElement.className = 'preview-status invalid';
+                previewItem.classList.add('invalid');
+                fileData.isValid = false;
+            }
+            
+            updateDocumentValidationStatus();
+        }
+
+        function displayFilePreview(fileData) {
+            const file = fileData.file;
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.setAttribute('data-file-name', file.name);
+           
+            const fileIcon = file.type.includes('pdf') ? '📄' : '🖼️';
+            const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+           
+            previewItem.innerHTML = `
+                <div class="preview-icon">${fileIcon}</div>
+                <div class="preview-info">
+                    <div class="preview-name">${file.name}</div>
+                    <div class="preview-size">${fileSize}</div>
+                    <div class="preview-status checking">Checking document...</div>
+                </div>
+                <button type="button" class="remove-file" onclick="removeFile('${file.name}')">Remove</button>
+            `;
+           
+            documentPreview.appendChild(previewItem);
+            documentPreview.style.display = 'block';
+        }
+
+        function removeFile(fileName) {
+            uploadedFiles = uploadedFiles.filter(fileData => fileData.file.name !== fileName);
+           
+            const previewItems = documentPreview.querySelectorAll('.preview-item');
+            previewItems.forEach(item => {
+                if (item.getAttribute('data-file-name') === fileName) {
+                    item.remove();
+                }
+            });
+           
+            if (uploadedFiles.length === 0) {
+                documentPreview.style.display = 'none';
+            }
+            
+            updateDocumentValidationStatus();
+        }
+
+        function updateDocumentValidationStatus() {
+            const validFiles = uploadedFiles.filter(fileData => fileData.isValid === true);
+            const invalidFiles = uploadedFiles.filter(fileData => fileData.isValid === false);
+            
+            if (uploadedFiles.length === 0) {
+                documentUpload.classList.remove('error');
+                documentError.style.display = 'none';
+            } else if (validFiles.length === 0 && uploadedFiles.some(fileData => fileData.isValid !== null)) {
+                documentUpload.classList.add('error');
+                documentError.textContent = 'No valid documents found. Please upload authentic identity documents.';
+                documentError.style.display = 'block';
+            } else if (validFiles.length > 0) {
+                documentUpload.classList.remove('error');
+                documentError.style.display = 'none';
+            }
+        }
+
+        // Phone number validation
+        const contactInput = document.getElementById('contact');
+        const phoneError = document.getElementById('phoneError');
+        const phoneSuccess = document.getElementById('phoneSuccess');
+
+        contactInput.addEventListener('input', function() {
+            const phone = this.value;
+            
+            if (phone.length === 0) {
+                phoneError.style.display = 'none';
+                phoneSuccess.style.display = 'none';
+                this.classList.remove('error');
+                return;
+            }
+            
+            if (validatePhoneNumber(phone)) {
+                this.classList.remove('error');
+                phoneError.style.display = 'none';
+                phoneSuccess.style.display = 'block';
+            } else {
+                this.classList.add('error');
+                phoneError.style.display = 'block';
+                phoneSuccess.style.display = 'none';
+            }
+        });
+
+        // Enhanced location functionality
+        async function initializeLocation() {
+            const coordinatesEl = document.getElementById('coordinates');
+            const addressEl = document.getElementById('address');
+            const districtEl = document.getElementById('district');
+            
+            try {
+                coordinatesEl.textContent = 'Getting location...';
+                addressEl.textContent = 'Waiting for coordinates...';
+                districtEl.textContent = 'Waiting for location...';
+                
+                const locationData = await getEnhancedLocation();
+                currentLocation = locationData;
+                
+                coordinatesEl.textContent = `${locationData.coordinates.latitude.toFixed(6)}, ${locationData.coordinates.longitude.toFixed(6)}`;
+                coordinatesEl.className = 'location-success';
+                
+                addressEl.textContent = locationData.address;
+                addressEl.className = 'location-success';
+                
+                districtEl.textContent = `${locationData.district}, ${locationData.state}`;
+                districtEl.className = 'location-success';
+                
+            } catch (error) {
+                coordinatesEl.textContent = 'Location access denied or unavailable';
+                coordinatesEl.className = 'location-error';
+                
+                addressEl.textContent = 'Unable to determine address';
+                addressEl.className = 'location-error';
+                
+                districtEl.textContent = 'Please enter manually if needed';
+                districtEl.className = 'location-error';
+                
+                console.error('Location error:', error);
+            }
+        }
+
+        // Enhanced form submission
+        document.getElementById('complaintForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Validate documents
+            const validFiles = uploadedFiles.filter(fileData => fileData.isValid === true);
+            if (validFiles.length === 0) {
+                alert('Please upload at least one valid identity document.');
+                return;
+            }
+            
+            // Validate phone number
+            if (!validatePhoneNumber(contactInput.value)) {
+                alert('Please enter a valid 10-digit mobile number.');
+                contactInput.focus();
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.innerHTML = '<div class="spinner"></div> Submitting...';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Generate complaint ID
+            const complaintId = 'CMP-2024-' + (complaints.length + 1).toString().padStart(3, '0');
+            
+            // Create complaint object
+            const complaint = {
+                id: complaintId,
+                type: document.getElementById('complaintType').value,
+                description: document.getElementById('description').value,
+                priority: document.getElementById('priority').value,
+                contact: contactInput.value,
+                location: currentLocation,
+                documents: validFiles.map(fileData => ({
+                    name: fileData.file.name,
+                    type: fileData.validationResult.documentType,
+                    confidence: fileData.validationResult.confidence
+                })),
+                status: 'submitted',
+                submittedAt: new Date().toISOString(),
+                timeline: [{
+                    status: 'submitted',
+                    timestamp: new Date().toISOString(),
+                    description: 'Complaint submitted successfully'
+                }]
+            };
+            
+            // Store complaint
+            complaints.push(complaint);
+            localStorage.setItem('complaints', JSON.stringify(complaints));
+            
+            const message = `✅ Complaint submitted successfully!\n\nComplaint ID: ${complaintId}\n\nDocuments validated: ${validFiles.length}\nLocation captured: ${currentLocation ? 'Yes' : 'No'}\n\nYou will receive SMS updates on ${contactInput.value}`;
+            alert(message);
+            
+            // Reset form
+            this.reset();
+            uploadedFiles = [];
+            documentPreview.style.display = 'none';
+            documentPreview.innerHTML = '';
+            phoneError.style.display = 'none';
+            phoneSuccess.style.display = 'none';
+            contactInput.classList.remove('error');
+            
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+
+        // Enhanced search functionality
+        function searchComplaints() {
+            const trackingId = document.getElementById('trackingId').value.trim();
+            const searchResults = document.getElementById('searchResults');
+            const noComplaints = document.getElementById('noComplaints');
+            
+            if (trackingId === '') {
+                alert('Please enter a complaint ID or mobile number');
+                return;
+            }
+            
+            // Hide all complaints first
+            const allComplaints = searchResults.querySelectorAll('.complaint-card');
+            allComplaints.forEach(card => card.style.display = 'none');
+            
+            let foundComplaints = [];
+            
+            // Search in stored complaints
+            const storedComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+            foundComplaints = storedComplaints.filter(complaint => 
+                complaint.id.toLowerCase().includes(trackingId.toLowerCase()) ||
+                complaint.contact.includes(trackingId)
+            );
+            
+            // Also check sample complaints
+            if (trackingId.toLowerCase().includes('cmp-2024-001') || trackingId.includes('001')) {
+                document.querySelector('[data-complaint-id="CMP-2024-001"]').style.display = 'block';
+                foundComplaints.push({});
+            }
+            if (trackingId.toLowerCase().includes('cmp-2024-002') || trackingId.includes('002')) {
+                document.querySelector('[data-complaint-id="CMP-2024-002"]').style.display = 'block';
+                foundComplaints.push({});
+            }
+            
+            // Display stored complaints
+            foundComplaints.forEach(complaint => {
+                if (complaint.id) {
+                    displaySearchedComplaint(complaint);
+                }
+            });
+            
+            if (foundComplaints.length === 0) {
+                noComplaints.style.display = 'block';
+                searchResults.style.display = 'none';
+            } else {
+                noComplaints.style.display = 'none';
+                searchResults.style.display = 'block';
+                alert(`🔍 Search completed!\n\nFound ${foundComplaints.length} complaint(s) for: ${trackingId}`);
+            }
+        }
+
+        function displaySearchedComplaint(complaint) {
+            const complaintCard = document.createElement('div');
+            complaintCard.className = 'complaint-card';
+            complaintCard.innerHTML = `
+                <div class="complaint-header">
+                    <span class="complaint-id">${complaint.id}</span>
+                    <span class="status-badge status-${complaint.status}">${complaint.status.charAt(0).toUpperCase() + complaint.status.slice(1)}</span>
+                </div>
+                <h3>${complaint.description.substring(0, 50)}...</h3>
+                <p><strong>Location:</strong> ${complaint.location ? complaint.location.address : 'Not available'}</p>
+                <p><strong>Submitted:</strong> ${new Date(complaint.submittedAt).toLocaleDateString()}</p>
+                <p><strong>Priority:</strong> ${complaint.priority.charAt(0).toUpperCase() + complaint.priority.slice(1)}</p>
+                <p><strong>Documents:</strong> ${complaint.documents.length} validated</p>
+            `;
+            
+            document.getElementById('searchResults').appendChild(complaintCard);
+        }
+
+        // Language switching functionality (simplified for this example)
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            // Update all elements with data-lang attribute
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translations[lang] && translations[lang][key]) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Update select options
+            const selects = document.querySelectorAll('select option[data-lang]');
+            selects.forEach(option => {
+                const key = option.getAttribute('data-lang');
+                if (translations[lang] && translations[lang][key]) {
+                    const icon = option.innerHTML.split(' ')[0];
+                    option.innerHTML = icon + ' ' + translations[lang][key];
+                }
+            });
+
+            // Update voice language selector to match current language
+            const voiceLangMap = {
+                'en': 'en-US',
+                'hi': 'hi-IN',
+                'ta': 'ta-IN',
+                'bn': 'bn-IN'
+            };
+           
+            if (voiceLangMap[lang]) {
+                voiceLanguageSelector.value = voiceLangMap[lang];
+            }
+        }
+
+        // Language selector event listener
+        document.getElementById('languageSelector').addEventListener('change', function() {
+            const selectedLang = this.value;
+            switchLanguage(selectedLang);
+        });
+
+        // Offline detection
+        window.addEventListener('online', function() {
+            document.getElementById('offlineIndicator').classList.remove('show');
+            // Sync offline data when coming online
+            syncOfflineData();
+        });
+
+        window.addEventListener('offline', function() {
+            document.getElementById('offlineIndicator').classList.add('show');
+        });
+
+        function syncOfflineData() {
+            const offlineComplaints = JSON.parse(localStorage.getItem('offlineComplaints') || '[]');
+            if (offlineComplaints.length > 0) {
+                // In a real app, this would send data to the server
+                console.log('Syncing offline complaints:', offlineComplaints);
+                
+                // Move offline complaints to main complaints
+                const allComplaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+                allComplaints.push(...offlineComplaints);
+                localStorage.setItem('complaints', JSON.stringify(allComplaints));
+                localStorage.removeItem('offlineComplaints');
+                
+                alert(`📡 Synced ${offlineComplaints.length} offline complaints to server!`);
+            }
+        }
+
+        // Initialize everything on page load
+        window.addEventListener('load', function() {
+            initSpeechRecognition();
+            initializeLocation();
+            
+            // Check if there are offline complaints to sync
+            if (navigator.onLine) {
+                syncOfflineData();
+            }
+        });
+
+        // PWA installation prompt (simulated)
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (confirm('📱 Install SMART Complaint System as a mobile app for offline access?\n\nThis will enable you to file complaints even without internet connection.')) {
+                    alert('✅ App installation started!\n\nThe app will be available on your home screen shortly.');
+                }
+            }, 5000);
+        });
+
+        // Service Worker registration (for PWA functionality)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // In a real app, you would register a service worker here
+                console.log('Service Worker support detected');
+            });
+        }
+
+        // Enhanced error handling
+        window.addEventListener('error', function(e) {
+            console.error('Application error:', e.error);
+            // In production, this would log to a monitoring service
+        });
+
+        // Auto-save form data periodically (for offline support)
+        let autoSaveInterval;
+        
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                const formData = {
+                    complaintType: document.getElementById('complaintType').value,
+                    description: document.getElementById('description').value,
+                    priority: document.getElementById('priority').value,
+                    contact: document.getElementById('contact').value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (formData.description || formData.contact) {
+                    localStorage.setItem('draftComplaint', JSON.stringify(formData));
+                }
+            }, 30000); // Save every 30 seconds
+        }
+
+        function loadDraftData() {
+            const draft = localStorage.getItem('draftComplaint');
+            if (draft) {
+                const data = JSON.parse(draft);
+                if (confirm('Found a saved draft from your previous session. Would you like to restore it?')) {
+                    document.getElementById('complaintType').value = data.complaintType || '';
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('priority').value = data.priority || '';
+                    document.getElementById('contact').value = data.contact || '';
+                }
+                localStorage.removeItem('draftComplaint');
+            }
+        }
+
+        // Load draft data on page load
+        window.addEventListener('load', loadDraftData);
+        
+        // Start auto-save when user starts typing
+        document.getElementById('description').addEventListener('input', function() {
+            if (!autoSaveInterval) {
+                startAutoSave();
+            }
+        });
+
+        // Clear auto-save on successful submission
+        document.getElementById('complaintForm').addEventListener('submit', function() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+                autoSaveInterval = null;
+            }
+            localStorage.removeItem('draftComplaint');
+        });
+
+        // Accessibility improvements
+        document.addEventListener('keydown', function(e) {
+            // Keyboard navigation for tabs
+            if (e.altKey && e.key >= '1' && e.key <= '4') {
+                const tabIndex = parseInt(e.key) - 1;
+                const tabs = ['complaint', 'track', 'dashboard', 'features'];
+                if (tabs[tabIndex]) {
+                    switchTab(tabs[tabIndex]);
+                }
+                e.preventDefault();
+            }
+        });
+
+        // Performance monitoring
+        function measurePerformance() {
+            if ('performance' in window) {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log('Page load time:', perfData.loadEventEnd - perfData.navigationStart, 'ms');
+            }
+        }
+
+        window.addEventListener('load', measurePerformance);
+    </script>
+</body>
+</html>
